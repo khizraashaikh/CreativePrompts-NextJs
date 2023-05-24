@@ -9,8 +9,28 @@ const PromptCard = ({ post, handleTagClick, handleEdit, handleDelete }) => {
   const { data: session } = useSession();
   const pathName = usePathname();
   const router = useRouter();
-
   const [copied, setCopied] = useState("");
+  const [likes, setLikes] = useState(post?.likes);
+  const promptId = post._id;
+  const userId = session?.user.id;
+  let hasLikedPost = post?.likes?.find((like) => like === userId);
+
+  const handleLike = async () => {
+    const response = await fetch(`/api/prompt/${promptId}`, {
+      method: "PATCH",
+      body: JSON.stringify({
+        userId: userId,
+      }),
+    });
+    const data = await response.json();
+
+    if (hasLikedPost) {
+      setLikes(post.likes.filter((id) => id !== userId));
+    } else {
+      setLikes([...post.likes, userId]);
+    }
+    post.likes = data.likes;
+  };
 
   const handleCopy = () => {
     setCopied(post.prompt);
@@ -24,9 +44,47 @@ const PromptCard = ({ post, handleTagClick, handleEdit, handleDelete }) => {
     router.push(`/profile/${post.creator._id}?name=${post.creator.username}`);
   };
 
+  const Likes = () => {
+    if (likes?.length > 0) {
+      return likes.find((like) => like === userId) ? (
+        <>
+          <Image
+            src="/assets/icons/like_filled.svg"
+            alt="like_icon"
+            width={12}
+            height={12}
+          />
+          <span className="text-xs text-gray-600">&nbsp;{likes.length}</span>
+        </>
+      ) : (
+        <>
+          <Image
+            src="/assets/icons/like_outlined.svg"
+            alt="like_icon"
+            width={12}
+            height={12}
+          />
+          <span className="text-xs text-gray-600">&nbsp;{likes.length}</span>
+        </>
+      );
+    }
+
+    return (
+      <>
+        <Image
+          src="/assets/icons/like_outlined.svg"
+          alt="like_icon"
+          width={12}
+          height={12}
+        />
+        <span className="text-xs text-gray-600">&nbsp;{likes.length}</span>
+      </>
+    );
+  };
+
   return (
     <div className="prompt_card">
-      <div className="flex justify-between items-start gap-5">
+      <div className="flex justify-between items-start gap-1">
         <div
           className="flex-1 flex justify-start items-center gap-3 cursor-pointer"
           onClick={handleProfileClick}
@@ -49,6 +107,14 @@ const PromptCard = ({ post, handleTagClick, handleEdit, handleDelete }) => {
           </div>
         </div>
 
+        <div
+          className={`like_btn ${
+            userId ? "" : "pointer-events-none opacity-[0.4]"
+          }`}
+          onClick={handleLike}
+        >
+          <Likes />
+        </div>
         <div className="copy_btn" onClick={handleCopy}>
           <Image
             src={
@@ -68,7 +134,7 @@ const PromptCard = ({ post, handleTagClick, handleEdit, handleDelete }) => {
         className="font-inter text-sm blue_gradient cursor-pointer"
         onClick={() => handleTagClick && handleTagClick(post.tag)}
       >
-        #{post.tag}
+        {post.tag.startsWith("#") ? post.tag : `#${post.tag}`}
       </p>
 
       {session?.user.id === post.creator._id && pathName === "/profile" && (

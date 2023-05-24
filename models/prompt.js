@@ -13,6 +13,14 @@ const PromptSchema = new Schema({
     type: String,
     required: [true, "Tag is required."],
   },
+  likes: {
+    type: [String],
+    default: [],
+  },
+  createdAt: {
+    type: Date,
+    default: new Date(),
+  },
 });
 
 const Prompt = models.Prompt || model("Prompt", PromptSchema);
