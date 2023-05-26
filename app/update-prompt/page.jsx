@@ -4,11 +4,14 @@ import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import Form from "@components/Form";
+import { useSession } from "next-auth/react";
 
 const EditPrompt = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const promptId = searchParams.get("id");
+  const { data: session } = useSession();
+  const userId = session?.user.id;
 
   const [submitting, setSubmitting] = useState(false);
   const [post, setPost] = useState({
@@ -40,8 +43,10 @@ const EditPrompt = () => {
       const response = await fetch(`/api/prompt/${promptId}`, {
         method: "PATCH",
         body: JSON.stringify({
+          userId: userId,
           prompt: post.prompt,
           tag: post.tag,
+          reqFor: "update",
         }),
       });
 

@@ -20,6 +20,9 @@ const PromptCard = ({ post, handleTagClick, handleEdit, handleDelete }) => {
       method: "PATCH",
       body: JSON.stringify({
         userId: userId,
+        prompt: post.prompt,
+        tag: post.tag,
+        reqFor: "like",
       }),
     });
     const data = await response.json();
