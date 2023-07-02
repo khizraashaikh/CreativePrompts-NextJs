@@ -16,13 +16,10 @@ const PromptCard = ({ post, handleTagClick, handleEdit, handleDelete }) => {
   let hasLikedPost = post?.likes?.find((like) => like === userId);
 
   const handleLike = async () => {
-    const response = await fetch(`/api/prompt/${promptId}`, {
+    const response = await fetch(`/api/prompt/${promptId}/like`, {
       method: "PATCH",
       body: JSON.stringify({
         userId: userId,
-        prompt: post.prompt,
-        tag: post.tag,
-        reqFor: "like",
       }),
     });
     const data = await response.json();

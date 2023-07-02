@@ -17,29 +17,7 @@ export const GET = async (request, { params }) => {
 
 // PATCH (update)
 export const PATCH = async (request, { params }) => {
-  const { userId, prompt, tag, reqFor } = await request.json();
-  if (reqFor === "like") {
-    try {
-      await connectToDB();
-      const id = params.id;
-      const post = await Prompt.findById(id);
-
-      const index = post.likes.findIndex((id) => id === String(userId));
-
-      if (index === -1) {
-        post.likes.push(userId);
-      } else {
-        post.likes = post.likes.filter((id) => id !== String(userId));
-      }
-
-      const existingPrompt = await Prompt.findByIdAndUpdate(id, post, {
-        new: true,
-      });
-      return new Response(JSON.stringify(existingPrompt), { status: 200 });
-    } catch (error) {
-      return new Response("Failed to like the prompt", { status: 500 });
-    }
-  }
+  const { prompt, tag } = await request.json();
   try {
     await connectToDB();
 
